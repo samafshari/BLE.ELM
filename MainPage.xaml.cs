@@ -56,8 +56,6 @@ namespace BLE
             if (deviceWatcher == null)
             {
                 string[] requestedProperties = { "System.Devices.Aep.DeviceAddress", "System.Devices.Aep.IsConnected", "System.Devices.Aep.Bluetooth.Le.IsConnectable" };
-
-                // BT_Code: Example showing paired and non-paired in a single query.
                 string aqsAllBluetoothLEDevices = "(System.Devices.Aep.ProtocolId:=\"{bb7bb05e-5972-42b5-94fc-76eaa7084d49}\")";
 
                 deviceWatcher =
@@ -156,11 +154,6 @@ namespace BLE
                     TxtStatus.Text += service.Uuid + "\n";
                 }
 
-                //var selectedService = services.Services.FirstOrDefault(x => x.Uuid.ToString().ToUpper() == "E7810A71-73AE-499D-8C15-FAA9AEF0C3F2");
-
-                //TxtStatus.Text += $"Characteristics of {selectedService.Uuid}:\n";
-                //var characteristics = await selectedService.GetCharacteristicsAsync();
-
                 foreach (var service in services.Services)
                 {
                     var items = await service.GetCharacteristicsAsync();
@@ -172,8 +165,8 @@ namespace BLE
                             //Debug.WriteLine("Read");
                             characteristic.ValueChanged += SelectedCharacteristic_ValueChanged;
                         }
-                        if (characteristic.Uuid.ToString() == "00002af1-0000-1000-8000-00805f9b34fb")
-                            selectedCharacteristic = characteristic;
+                        if (characteristic.Uuid.ToString() == "bef8d6c9-9c21-4c9e-b632-bd58c1009f9f") ;// "00002af1-0000-1000-8000-00805f9b34fb")
+                        selectedCharacteristic = characteristic;
                     }
                 }
             }
@@ -214,42 +207,7 @@ namespace BLE
 
         async void Send(string command)
         {
-            await WriteAsync(selectedCharacteristic, command + "\r\n");
-        }
-
-        private void BtnF_Click(object sender, RoutedEventArgs e)
-        {
-            Send("f");
-        }
-
-        private void BtnB_Click(object sender, RoutedEventArgs e)
-        {
-            Send("b");
-        }
-
-        private void BtnL_Click(object sender, RoutedEventArgs e)
-        {
-            Send("l");
-        }
-
-        private void BtnR_Click(object sender, RoutedEventArgs e)
-        {
-            Send("r");
-        }
-
-        private void Btn1_Click(object sender, RoutedEventArgs e)
-        {
-            Send("1");
-        }
-
-        private void Btn2_Click(object sender, RoutedEventArgs e)
-        {
-            Send("2");
-        }
-
-        private void BtnS_Click(object sender, RoutedEventArgs e)
-        {
-            Send("s");
+            await WriteAsync(selectedCharacteristic, command + "\r");
         }
 
         private void SelectedCharacteristic_ValueChanged(GattCharacteristic characteristic, GattValueChangedEventArgs args)
@@ -263,10 +221,10 @@ namespace BLE
             byte[] data = new byte[buffer.Length];
             DataReader.FromBuffer(buffer).ReadBytes(data);
             var bytes = buffer.ToArray();
-            var ascii = Encoding.UTF8.GetString(bytes);
+            var utf8 = Encoding.UTF8.GetString(bytes);
             Dispatch(() =>
             {
-                TxtStatus.Text += $"Read ASCII: {ascii}";
+                TxtStatus.Text += $"Read: {utf8}";
             });
         }
     }
